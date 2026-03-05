@@ -1,0 +1,17 @@
+[Unit]
+Description=Arducam MJPEG bridge
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=__PI_USER__
+WorkingDirectory=/opt/arducam-bridge
+EnvironmentFile=-/etc/default/arducam-bridge
+ExecStart=/bin/sh -lc '/usr/bin/python3 /opt/arducam-bridge/bridge_streamer.py ${STREAM_ARGS:---host 0.0.0.0 --port 7123 --width 1280 --height 720 --framerate 6 --quality 65}'
+Restart=always
+RestartSec=2
+TimeoutStopSec=5
+
+[Install]
+WantedBy=multi-user.target
