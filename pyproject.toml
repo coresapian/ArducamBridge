@@ -1,0 +1,15 @@
+[project]
+name = "arducambridge-vision"
+version = "0.1.0"
+description = "Detection and tracking services for ArducamBridge"
+requires-python = ">=3.11"
+dependencies = [
+  "numpy",
+  "opencv-python-headless",
+  "PyYAML",
+  "supervision",
+  "ultralytics",
+]
+
+[tool.uv]
+package = false

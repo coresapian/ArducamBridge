@@ -1,0 +1,34 @@
+source:
+  stream_url: "http://pi-zero-1.local:7123/stream.mjpg"
+  snapshot_url: "http://pi-zero-1.local:7123/snapshot.jpg"
+
+model:
+  backend: "yolo"
+  weights: "yolo26n.pt"
+  imgsz: 960
+  confidence: 0.35
+  classes_of_interest: []
+
+tracking:
+  track_activation_threshold: 0.25
+  lost_track_buffer: 24
+  minimum_matching_threshold: 0.8
+  minimum_consecutive_frames: 2
+
+inventory:
+  stabilization_frames: 4
+  transition_confirmation_frames: 4
+  stale_track_frames: 48
+  zones:
+    - name: "shelf_main"
+      polygon:
+        - [0.08, 0.18]
+        - [0.92, 0.18]
+        - [0.92, 0.82]
+        - [0.08, 0.82]
+
+server:
+  host: "127.0.0.1"
+  port: 9134
+  jpeg_quality: 80
+  recent_event_limit: 200
