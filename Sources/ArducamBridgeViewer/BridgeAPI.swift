@@ -74,7 +74,7 @@ enum StreamPreset: String, CaseIterable, Identifiable {
         }
     }
 
-    static func matching(settings: BridgeSettings) -> StreamPreset {
+    static func matching(settings: BridgeSettings) -> StreamPreset? {
         switch (settings.width, settings.height, Int(settings.framerate.rounded()), settings.quality) {
         case (640, 480, 12, 55):
             return .lowLatency
@@ -83,7 +83,7 @@ enum StreamPreset: String, CaseIterable, Identifiable {
         case (1920, 1080, 4, 75):
             return .detail
         default:
-            return .balanced
+            return nil
         }
     }
 }
@@ -189,20 +189,7 @@ enum BridgeAPI {
             return "http://pi-zero-1.local:7123/snapshot.jpg"
         }
 
-        if components.path.hasSuffix("/stream.mjpg") {
-            components.path = components.path.replacingOccurrences(of: "/stream.mjpg", with: "/snapshot.jpg")
-            components.query = nil
-            return components.string ?? "http://pi-zero-1.local:7123/snapshot.jpg"
-        }
-
-        if components.path.hasSuffix("/") {
-            components.path += "snapshot.jpg"
-        } else if components.path.isEmpty {
-            components.path = "/snapshot.jpg"
-        } else {
-            components.path += "/snapshot.jpg"
-        }
-
+        components.path = siblingEndpointPath(from: components.path, endpoint: "snapshot.jpg")
         components.query = nil
         return components.string ?? "http://pi-zero-1.local:7123/snapshot.jpg"
     }
@@ -242,13 +229,43 @@ enum BridgeAPI {
         guard var components = URLComponents(url: sourceURL, resolvingAgainstBaseURL: false) else {
             throw BridgeAPIError.invalidURL
         }
-        components.path = "/\(path)"
+        components.path = siblingEndpointPath(from: components.path, endpoint: path)
         components.query = nil
         components.fragment = nil
         guard let url = components.url else {
             throw BridgeAPIError.invalidURL
         }
         return url
+    }
+
+    private static func siblingEndpointPath(from originalPath: String, endpoint: String) -> String {
+        let cleanEndpoint = endpoint.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        guard !cleanEndpoint.isEmpty else {
+            return originalPath.isEmpty ? "/" : originalPath
+        }
+
+        if originalPath.hasSuffix("/stream.mjpg") {
+            return originalPath.replacingOccurrences(of: "/stream.mjpg", with: "/\(cleanEndpoint)")
+        }
+
+        if originalPath.isEmpty || originalPath == "/" {
+            return "/\(cleanEndpoint)"
+        }
+
+        if originalPath.hasSuffix("/") {
+            return originalPath + cleanEndpoint
+        }
+
+        let lastComponent = originalPath.split(separator: "/").last.map(String.init) ?? ""
+        if lastComponent.contains(".") {
+            let basePath = originalPath.split(separator: "/").dropLast().map(String.init).joined(separator: "/")
+            if basePath.isEmpty {
+                return "/\(cleanEndpoint)"
+            }
+            return "/\(basePath)/\(cleanEndpoint)"
+        }
+
+        return "\(originalPath)/\(cleanEndpoint)"
     }
 
     private static func validate(response: URLResponse, data: Data) throws {

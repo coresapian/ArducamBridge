@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import signal
+import socket
 import subprocess
 import threading
 import time
@@ -141,19 +142,23 @@ class FramePump:
         with self.condition:
             self.condition.notify_all()
 
-    def snapshot_state(self) -> dict[str, object]:
+    def snapshot_state(self, host: str | None = None) -> dict[str, object]:
         age = None
         if self.latest_frame_at:
             age = round(time.time() - self.latest_frame_at, 3)
+        with self.process_lock:
+            process_running = self.process is not None and self.process.poll() is None
+        base_url = self._advertised_base_url(host)
         return {
-            "running": self.running,
+            "running": self.running and self.thread.is_alive(),
+            "camera_running": process_running,
             "frame_counter": self.frame_counter,
             "last_frame_age_s": age,
             "error": self.error,
             "stderr_tail": list(self.stderr_tail),
-            "stream_url": f"http://{self._lan_hint()}:{self.port}/stream.mjpg",
-            "snapshot_url": f"http://{self._lan_hint()}:{self.port}/snapshot.jpg",
-            "settings_url": f"http://{self._lan_hint()}:{self.port}/settings",
+            "stream_url": f"{base_url}/stream.mjpg",
+            "snapshot_url": f"{base_url}/snapshot.jpg",
+            "settings_url": f"{base_url}/settings",
             "settings": self.current_config(),
         }
 
@@ -191,8 +196,16 @@ class FramePump:
                 self.condition.wait(remaining)
         return self.frame_counter, self.latest_frame
 
-    def _lan_hint(self) -> str:
-        return os.environ.get("ARDUCAM_BRIDGE_HOST_HINT", "pi-zero-1.local")
+    def _advertised_base_url(self, host: str | None = None) -> str:
+        advertised_host = self._advertised_host(host)
+        if ":" not in advertised_host and not advertised_host.startswith("["):
+            advertised_host = f"{advertised_host}:{self.port}"
+        return f"http://{advertised_host}"
+
+    def _advertised_host(self, override: str | None = None) -> str:
+        if override:
+            return override
+        return os.environ.get("ARDUCAM_BRIDGE_HOST_HINT", socket.gethostname())
 
     def _camera_command(self) -> list[str]:
         with self.config_lock:
@@ -231,20 +244,33 @@ class FramePump:
         return command
 
     def _run(self) -> None:
-        while self.running:
-            self._read_from_camera()
-            if self.running:
-                time.sleep(0.5)
+        try:
+            while self.running:
+                self._read_from_camera()
+                if self.running:
+                    time.sleep(0.5)
+        except Exception as exc:
+            self.error = f"camera worker crashed: {exc}"
+            logging.exception("Camera worker crashed")
+            with self.condition:
+                self.condition.notify_all()
 
     def _read_from_camera(self) -> None:
         command = self._camera_command()
         logging.info("Starting camera process: %s", " ".join(command))
-        process = subprocess.Popen(
-            command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            bufsize=0,
-        )
+        try:
+            process = subprocess.Popen(
+                command,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                bufsize=0,
+            )
+        except OSError as exc:
+            self.error = f"camera process failed to start: {exc}"
+            logging.exception("Failed to start camera process")
+            with self.condition:
+                self.condition.notify_all()
+            return
         with self.process_lock:
             self.process = process
         stderr_thread = threading.Thread(target=self._drain_stderr, args=(process,), daemon=True)
@@ -289,7 +315,8 @@ class FramePump:
             end = buffer.find(JPEG_EOI, 2)
             if end < 0:
                 if len(buffer) > 8 * 1024 * 1024:
-                    del buffer[:start]
+                    logging.warning("Discarding oversized incomplete JPEG frame (%s bytes)", len(buffer))
+                    del buffer[:-len(JPEG_SOI)]
                 return
 
             frame = bytes(buffer[: end + 2])
@@ -337,7 +364,7 @@ def make_handler(pump: FramePump):
                 self._serve_index()
                 return
             if parsed.path == "/healthz":
-                self._serve_json(pump.snapshot_state())
+                self._serve_json(pump.snapshot_state(host=self._request_host()))
                 return
             if parsed.path == "/settings":
                 self._serve_json({"settings": pump.current_config()})
@@ -369,7 +396,7 @@ def make_handler(pump: FramePump):
             logging.info("%s - %s", self.address_string(), fmt % args)
 
         def _serve_index(self) -> None:
-            state = pump.snapshot_state()
+            state = pump.snapshot_state(host=self._request_host())
             settings = state["settings"]
             html = f"""<!doctype html>
 <html lang="en">
@@ -462,6 +489,15 @@ def make_handler(pump: FramePump):
             if not isinstance(payload, dict):
                 raise ValueError("request body must be a JSON object")
             return payload
+
+        def _request_host(self) -> str | None:
+            forwarded_host = self.headers.get("X-Forwarded-Host")
+            if forwarded_host:
+                return forwarded_host.split(",", 1)[0].strip()
+            host = self.headers.get("Host")
+            if host:
+                return host.strip()
+            return None
 
     return Handler
 
