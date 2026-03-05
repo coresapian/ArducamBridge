@@ -22,9 +22,41 @@ private enum FeedTone {
     }
 }
 
+private enum PreviewMode: String, CaseIterable, Identifiable {
+    case raw
+    case annotated
+    case capture
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .raw:
+            return "Raw Pi"
+        case .annotated:
+            return "Detection"
+        case .capture:
+            return "Capture"
+        }
+    }
+
+    var subtitle: String {
+        switch self {
+        case .raw:
+            return "Direct MJPEG from the Pi bridge."
+        case .annotated:
+            return "Local detector overlay with tracks and events."
+        case .capture:
+            return "Freeze a snapshot and draw training boxes."
+        }
+    }
+}
+
 struct ContentView: View {
     @AppStorage("streamURL") private var streamURL = "http://pi-zero-1.local:7123/stream.mjpg"
     @AppStorage("snapshotURL") private var snapshotURL = ""
+
+    @StateObject private var workbench = VisionWorkbench()
 
     @State private var reloadToken = UUID()
     @State private var hasConnected = false
@@ -35,6 +67,7 @@ struct ContentView: View {
     @State private var selectedPreset: StreamPreset = .balanced
     @State private var focusMode: FocusMode = .auto
     @State private var manualLensPosition = 0.0
+    @State private var previewMode: PreviewMode = .raw
     @State private var isApplyingStream = false
     @State private var isApplyingFocus = false
     @State private var isSavingSnapshot = false
@@ -45,7 +78,7 @@ struct ContentView: View {
 
             HStack(spacing: 24) {
                 controlPanel
-                    .frame(width: 380)
+                    .frame(width: 430)
 
                 previewPanel
             }
@@ -87,50 +120,20 @@ struct ContentView: View {
                     .font(.system(size: 34, weight: .bold, design: .serif))
                     .foregroundStyle(.white)
 
-                Text("Drive the Pi stream from the Mac. Tune resolution for more detail, drop it for latency, and push autofocus or manual lens changes without leaving the app.")
+                Text("Use the app as the operator console: run the Pi stream, switch to annotated tracking, capture labeled product images, and launch local training runs from the same window.")
                     .font(.system(size: 14, weight: .medium, design: .rounded))
                     .foregroundStyle(Color.white.opacity(0.72))
                     .fixedSize(horizontal: false, vertical: true)
 
-                VStack(alignment: .leading, spacing: 8) {
-                    fieldLabel("MJPEG stream URL")
-                    TextField("http://pi-zero-1.local:7123/stream.mjpg", text: $streamURL)
-                        .textFieldStyle(.plain)
-                        .font(.system(size: 13, weight: .medium, design: .monospaced))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 12)
-                        .background(fieldFill)
-                }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    fieldLabel("Snapshot URL")
-                    TextField(BridgeAPI.derivedSnapshotURL(from: streamURL), text: $snapshotURL)
-                        .textFieldStyle(.plain)
-                        .font(.system(size: 13, weight: .medium, design: .monospaced))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 12)
-                        .background(fieldFill)
-
-                    Text("Leave blank to auto-derive `/snapshot.jpg` from the stream URL.")
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
-                        .foregroundStyle(Color.white.opacity(0.58))
-                }
-
-                primaryButton(
-                    title: hasConnected ? "Reload preview" : "Connect",
-                    systemImage: hasConnected ? "arrow.clockwise.circle.fill" : "dot.radiowaves.left.and.right",
-                    action: connectOrReload
-                )
-
-                actionRow
-
-                Divider()
-                    .overlay(Color.white.opacity(0.15))
-
+                workspaceCard
+                previewModeCard
+                connectionCard
+                actionButtonsCard
                 streamTuningCard
                 focusCard
+                detectorCard
+                captureCard
+                trainingCard
                 statusCard
                 detailCard
             }
@@ -144,26 +147,125 @@ struct ContentView: View {
         )
     }
 
-    private var actionRow: some View {
-        HStack(spacing: 10) {
-            secondaryButton(
-                title: "Sync Pi",
-                systemImage: "arrow.triangle.2.circlepath",
-                isBusy: false,
-                action: {
-                    Task {
-                        await syncPiState(showSuccessMessage: true)
-                    }
-                }
-            )
+    private var workspaceCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            cardHeader(title: "Workspace", subtitle: "The app writes detector configs, datasets, and training runs relative to this repo.")
 
-            secondaryButton(
-                title: "Save Snapshot",
-                systemImage: "camera.aperture",
-                isBusy: isSavingSnapshot,
-                action: saveSnapshot
+            Text(workbench.workspaceDescription)
+                .font(.system(size: 12, weight: .medium, design: .monospaced))
+                .foregroundStyle(Color.white.opacity(0.78))
+                .textSelection(.enabled)
+        }
+        .padding(18)
+        .background(cardFill)
+    }
+
+    private var previewModeCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            cardHeader(title: "Preview Mode", subtitle: previewMode.subtitle)
+
+            Picker("Preview Mode", selection: $previewMode) {
+                ForEach(PreviewMode.allCases) { mode in
+                    Text(mode.title).tag(mode)
+                }
+            }
+            .pickerStyle(.segmented)
+
+            Text(previewMode == .annotated ? workbench.annotatedStreamURL : sanitizedStreamURL)
+                .font(.system(size: 12, weight: .medium, design: .monospaced))
+                .foregroundStyle(Color.white.opacity(0.72))
+                .textSelection(.enabled)
+        }
+        .padding(18)
+        .background(cardFill)
+    }
+
+    private var connectionCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            cardHeader(title: "Pi Feed", subtitle: "These URLs drive the raw stream, focus controls, and snapshot capture.")
+
+            VStack(alignment: .leading, spacing: 8) {
+                fieldLabel("MJPEG stream URL")
+                TextField("http://pi-zero-1.local:7123/stream.mjpg", text: $streamURL)
+                    .textFieldStyle(.plain)
+                    .font(.system(size: 13, weight: .medium, design: .monospaced))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 12)
+                    .background(fieldFill)
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
+                fieldLabel("Snapshot URL")
+                TextField(BridgeAPI.derivedSnapshotURL(from: streamURL), text: $snapshotURL)
+                    .textFieldStyle(.plain)
+                    .font(.system(size: 13, weight: .medium, design: .monospaced))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 12)
+                    .background(fieldFill)
+
+                Text("Leave blank to auto-derive `/snapshot.jpg` from the raw stream URL.")
+                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .foregroundStyle(Color.white.opacity(0.58))
+            }
+
+            primaryButton(
+                title: hasConnected ? "Reload Preview" : "Connect",
+                systemImage: hasConnected ? "arrow.clockwise.circle.fill" : "dot.radiowaves.left.and.right",
+                action: connectOrReload
             )
         }
+        .padding(18)
+        .background(cardFill)
+    }
+
+    private var actionButtonsCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            cardHeader(title: "Quick Actions", subtitle: "Use the raw Pi feed for sync and still capture, or freeze a frame for dataset work.")
+
+            HStack(spacing: 10) {
+                secondaryButton(
+                    title: "Sync Pi",
+                    systemImage: "arrow.triangle.2.circlepath",
+                    isBusy: false,
+                    action: {
+                        Task {
+                            await syncPiState(showSuccessMessage: true)
+                        }
+                    }
+                )
+
+                secondaryButton(
+                    title: "Save Snapshot",
+                    systemImage: "camera.aperture",
+                    isBusy: isSavingSnapshot,
+                    action: saveSnapshot
+                )
+            }
+
+            HStack(spacing: 10) {
+                secondaryButton(
+                    title: "Capture Frame",
+                    systemImage: "camera.metering.center.weighted",
+                    isBusy: false,
+                    action: captureFrameForTraining
+                )
+
+                secondaryButton(
+                    title: "Refresh Detector",
+                    systemImage: "viewfinder.circle",
+                    isBusy: false,
+                    action: {
+                        Task {
+                            await workbench.refreshDetectorStatus()
+                        }
+                    }
+                )
+            }
+        }
+        .padding(18)
+        .background(cardFill)
     }
 
     private var streamTuningCard: some View {
@@ -262,6 +364,302 @@ struct ContentView: View {
         .background(cardFill)
     }
 
+    private var detectorCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            cardHeader(title: "Detection", subtitle: "Run object detection and tracking locally on the Mac against the Pi feed.")
+
+            Picker("Detector backend", selection: $workbench.detectorBackend) {
+                ForEach(VisionWorkbench.DetectorBackend.allCases) { backend in
+                    Text(backend.title).tag(backend)
+                }
+            }
+            .pickerStyle(.segmented)
+
+            VStack(alignment: .leading, spacing: 8) {
+                fieldLabel("Detector service URL")
+                TextField("http://127.0.0.1:9134", text: $workbench.detectorBaseURL)
+                    .textFieldStyle(.plain)
+                    .font(.system(size: 13, weight: .medium, design: .monospaced))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 12)
+                    .background(fieldFill)
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
+                fieldLabel("Weights")
+                TextField("yolo26n.pt", text: $workbench.detectorWeights)
+                    .textFieldStyle(.plain)
+                    .font(.system(size: 13, weight: .medium, design: .monospaced))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 12)
+                    .background(fieldFill)
+            }
+
+            HStack(spacing: 10) {
+                compactField(label: "Image Size", value: $workbench.detectorImageSize)
+                compactField(label: "Confidence", value: $workbench.detectorConfidence)
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
+                fieldLabel("Classes of interest")
+                TextField("Optional comma-separated SKU labels", text: $workbench.detectorClasses)
+                    .textFieldStyle(.plain)
+                    .font(.system(size: 13, weight: .medium, design: .monospaced))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 12)
+                    .background(fieldFill)
+            }
+
+            HStack(spacing: 10) {
+                secondaryButton(
+                    title: workbench.detectorRunning ? "Restart Detector" : "Start Detector",
+                    systemImage: workbench.detectorRunning ? "bolt.horizontal.circle" : "play.circle",
+                    isBusy: false,
+                    action: {
+                        workbench.startDetector(sourceStreamURL: sanitizedStreamURL, snapshotURL: resolvedSnapshotURL)
+                        previewMode = .annotated
+                        hasConnected = true
+                        reloadToken = UUID()
+                    }
+                )
+
+                secondaryButton(
+                    title: "Stop Detector",
+                    systemImage: "stop.circle",
+                    isBusy: false,
+                    action: workbench.stopDetector
+                )
+            }
+
+            if !workbench.latestWeightsPath.isEmpty {
+                secondaryButton(
+                    title: "Use Latest Model",
+                    systemImage: "shippingbox.circle",
+                    isBusy: false,
+                    action: workbench.applyLatestWeightsToDetector
+                )
+            }
+
+            Text(workbench.detectorStatus)
+                .font(.system(size: 12, weight: .medium, design: .rounded))
+                .foregroundStyle(Color.white.opacity(0.72))
+                .fixedSize(horizontal: false, vertical: true)
+
+            detectorMetricsView
+
+            logPreview(title: "Detector Log", body: detectorLogExcerpt)
+        }
+        .padding(18)
+        .background(cardFill)
+    }
+
+    private var detectorMetricsView: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            tipLine("Annotated stream", value: workbench.annotatedStreamURL)
+
+            if let health = workbench.detectorHealth {
+                HStack(spacing: 14) {
+                    metricPill(label: "FPS", value: String(format: "%.1f", health.processingFPS))
+                    metricPill(label: "Tracks", value: String(health.tracks.count))
+                    metricPill(label: "Frames", value: String(health.processedFrames))
+                }
+            }
+
+            if !workbench.inventoryDelta.isEmpty {
+                VStack(alignment: .leading, spacing: 6) {
+                    fieldLabel("Inventory Delta")
+                    ForEach(workbench.inventoryDelta.keys.sorted(), id: \.self) { key in
+                        Text("\(key): \(workbench.inventoryDelta[key] ?? 0)")
+                            .font(.system(size: 12, weight: .medium, design: .monospaced))
+                            .foregroundStyle(Color.white.opacity(0.74))
+                    }
+                }
+            }
+        }
+    }
+
+    private var captureCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            cardHeader(title: "Product Capture", subtitle: "Freeze a raw snapshot, draw boxes over products, and save YOLO-format training samples.")
+
+            VStack(alignment: .leading, spacing: 8) {
+                fieldLabel("Dataset Folder")
+                TextField("/path/to/datasets/vending", text: $workbench.datasetPath)
+                    .textFieldStyle(.plain)
+                    .font(.system(size: 13, weight: .medium, design: .monospaced))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 12)
+                    .background(fieldFill)
+            }
+
+            HStack(spacing: 10) {
+                secondaryButton(
+                    title: "Choose Folder",
+                    systemImage: "folder",
+                    isBusy: false,
+                    action: workbench.chooseDatasetDirectory
+                )
+
+                secondaryButton(
+                    title: "Reveal Folder",
+                    systemImage: "folder.badge.gearshape",
+                    isBusy: false,
+                    action: workbench.revealDatasetDirectory
+                )
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
+                fieldLabel("Active Product Label")
+                TextField("coke_can_12oz", text: $workbench.activeProductLabel)
+                    .textFieldStyle(.plain)
+                    .font(.system(size: 13, weight: .medium, design: .monospaced))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 12)
+                    .background(fieldFill)
+            }
+
+            HStack(spacing: 10) {
+                secondaryButton(
+                    title: "Capture From Pi",
+                    systemImage: "camera.viewfinder",
+                    isBusy: false,
+                    action: captureFrameForTraining
+                )
+
+                secondaryButton(
+                    title: "Save Sample",
+                    systemImage: "square.and.arrow.down",
+                    isBusy: false,
+                    action: workbench.saveLabeledSample
+                )
+            }
+
+            HStack(spacing: 10) {
+                secondaryButton(
+                    title: "Clear Boxes",
+                    systemImage: "trash",
+                    isBusy: false,
+                    action: workbench.clearAnnotations
+                )
+
+                Button {
+                    previewMode = .capture
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "rectangle.dashed")
+                        Text("Open Capture View")
+                    }
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 11)
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.white)
+                .background(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(Color.white.opacity(0.07))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                )
+            }
+
+            Text(workbench.datasetStatus)
+                .font(.system(size: 12, weight: .medium, design: .rounded))
+                .foregroundStyle(Color.white.opacity(0.72))
+                .fixedSize(horizontal: false, vertical: true)
+
+            VStack(alignment: .leading, spacing: 6) {
+                tipLine("Classes", value: workbench.datasetSummary.classNames.isEmpty ? "None yet" : workbench.datasetSummary.classNames.joined(separator: ", "))
+                tipLine("Dataset counts", value: "train \(workbench.datasetSummary.trainImageCount) · val \(workbench.datasetSummary.validationImageCount)")
+                tipLine("Active snapshot", value: workbench.capturedSnapshot == nil ? "No frozen frame" : workbench.capturedSnapshot!.sourceURL)
+            }
+        }
+        .padding(18)
+        .background(cardFill)
+    }
+
+    private var trainingCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            cardHeader(title: "Training", subtitle: "Launch a local Ultralytics training run from the current labeled dataset.")
+
+            Picker("Training backend", selection: $workbench.trainingBackend) {
+                ForEach(VisionWorkbench.DetectorBackend.allCases) { backend in
+                    Text(backend.title).tag(backend)
+                }
+            }
+            .pickerStyle(.segmented)
+
+            VStack(alignment: .leading, spacing: 8) {
+                fieldLabel("Base Weights")
+                TextField("yolo26n.pt", text: $workbench.trainingWeights)
+                    .textFieldStyle(.plain)
+                    .font(.system(size: 13, weight: .medium, design: .monospaced))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 12)
+                    .background(fieldFill)
+            }
+
+            HStack(spacing: 10) {
+                compactField(label: "Epochs", value: $workbench.trainingEpochs)
+                compactField(label: "Image Size", value: $workbench.trainingImageSize)
+                compactField(label: "Batch", value: $workbench.trainingBatchSize)
+            }
+
+            HStack(spacing: 10) {
+                compactField(label: "Device", value: $workbench.trainingDevice)
+                compactField(label: "Run Name", value: $workbench.trainingRunName)
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
+                fieldLabel("Training Output")
+                TextField("/path/to/runs/vending-training", text: $workbench.trainingProjectPath)
+                    .textFieldStyle(.plain)
+                    .font(.system(size: 13, weight: .medium, design: .monospaced))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 12)
+                    .background(fieldFill)
+            }
+
+            HStack(spacing: 10) {
+                secondaryButton(
+                    title: workbench.trainingRunning ? "Restart Training" : "Start Training",
+                    systemImage: workbench.trainingRunning ? "arrow.trianglehead.clockwise.rotate.90" : "play.rectangle",
+                    isBusy: false,
+                    action: workbench.startTraining
+                )
+
+                secondaryButton(
+                    title: "Stop Training",
+                    systemImage: "stop.fill",
+                    isBusy: false,
+                    action: workbench.stopTraining
+                )
+            }
+
+            if !workbench.latestWeightsPath.isEmpty {
+                tipLine("Latest weights", value: workbench.latestWeightsPath)
+            }
+
+            Text(workbench.trainingStatus)
+                .font(.system(size: 12, weight: .medium, design: .rounded))
+                .foregroundStyle(Color.white.opacity(0.72))
+                .fixedSize(horizontal: false, vertical: true)
+
+            logPreview(title: "Training Log", body: trainingLogExcerpt)
+        }
+        .padding(18)
+        .background(cardFill)
+    }
+
     private var statusCard: some View {
         VStack(alignment: .leading, spacing: 14) {
             HStack(spacing: 10) {
@@ -295,6 +693,7 @@ struct ContentView: View {
         VStack(alignment: .leading, spacing: 10) {
             tipLine("Pi MJPEG", value: sanitizedStreamURL)
             tipLine("Snapshot", value: resolvedSnapshotURL)
+            tipLine("Preview", value: previewMode.title)
             tipLine("Live profile", value: "\(currentSettings.resolutionLabel) · \(formattedFramerate(currentSettings.framerate)) fps · q\(currentSettings.quality)")
             tipLine("Focus", value: focusSummary)
         }
@@ -304,13 +703,13 @@ struct ContentView: View {
 
     private var previewPanel: some View {
         VStack(alignment: .leading, spacing: 16) {
-            HStack {
+            HStack(alignment: .firstTextBaseline) {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("Live Preview")
+                    Text(previewTitle)
                         .font(.system(size: 28, weight: .bold, design: .serif))
                         .foregroundStyle(.white)
 
-                    Text("MJPEG when possible, cached snapshots when not. Current target: \(currentSettings.resolutionLabel)")
+                    Text(previewSubtitle)
                         .font(.system(size: 13, weight: .medium, design: .rounded))
                         .foregroundStyle(Color.white.opacity(0.62))
                 }
@@ -319,15 +718,20 @@ struct ContentView: View {
             }
 
             Group {
-                if hasConnected {
-                    StreamWebView(
-                        streamURL: sanitizedStreamURL,
-                        snapshotURL: resolvedSnapshotURL,
-                        reloadToken: reloadToken,
-                        onStatusChange: handleStatus
-                    )
-                } else {
-                    previewPlaceholder
+                switch previewMode {
+                case .capture:
+                    capturePreview
+                case .raw, .annotated:
+                    if hasConnected || previewMode == .annotated {
+                        StreamWebView(
+                            streamURL: activePreviewStreamURL,
+                            snapshotURL: activePreviewSnapshotURL,
+                            reloadToken: reloadToken,
+                            onStatusChange: handleStatus
+                        )
+                    } else {
+                        previewPlaceholder
+                    }
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -340,6 +744,8 @@ struct ContentView: View {
                     .stroke(Color.white.opacity(0.08), lineWidth: 1)
             )
             .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
+
+            footerPanel
         }
         .padding(24)
         .background(panelFill.opacity(0.86))
@@ -348,6 +754,122 @@ struct ContentView: View {
             RoundedRectangle(cornerRadius: 30, style: .continuous)
                 .stroke(Color.white.opacity(0.08), lineWidth: 1)
         )
+    }
+
+    private var capturePreview: some View {
+        Group {
+            if let snapshot = workbench.capturedSnapshot {
+                AnnotationCanvas(
+                    image: snapshot.image,
+                    annotations: $workbench.annotations,
+                    activeLabel: workbench.activeProductLabel,
+                    accent: Color(red: 0.99, green: 0.78, blue: 0.42)
+                )
+            } else {
+                VStack(spacing: 18) {
+                    Image(systemName: "camera.viewfinder")
+                        .font(.system(size: 64, weight: .regular))
+                        .foregroundStyle(Color.white.opacity(0.5))
+
+                    Text("No frozen snapshot")
+                        .font(.system(size: 26, weight: .bold, design: .serif))
+                        .foregroundStyle(.white)
+
+                    Text("Capture a frame from the Pi, then draw boxes around each product you want in the training set.")
+                        .font(.system(size: 15, weight: .medium, design: .rounded))
+                        .foregroundStyle(Color.white.opacity(0.62))
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: 460)
+                }
+                .padding(40)
+            }
+        }
+    }
+
+    private var footerPanel: some View {
+        HStack(alignment: .top, spacing: 16) {
+            VStack(alignment: .leading, spacing: 10) {
+                cardHeader(title: "Recent Events", subtitle: "Tracker events emitted from the local detector service.")
+
+                if workbench.recentEvents.isEmpty {
+                    Text("No detector events yet.")
+                        .font(.system(size: 13, weight: .medium, design: .rounded))
+                        .foregroundStyle(Color.white.opacity(0.58))
+                } else {
+                    ForEach(Array(workbench.recentEvents.prefix(5))) { event in
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("\(event.className) · \(event.eventType)")
+                                .font(.system(size: 13, weight: .bold, design: .rounded))
+                                .foregroundStyle(.white)
+                            Text("zone \(event.zone) · track #\(event.trackID) · frame \(event.frameIndex)")
+                                .font(.system(size: 12, weight: .medium, design: .monospaced))
+                                .foregroundStyle(Color.white.opacity(0.62))
+                        }
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(16)
+            .background(cardFill)
+
+            VStack(alignment: .leading, spacing: 10) {
+                cardHeader(title: previewMode == .capture ? "Annotations" : "Tracking Summary", subtitle: previewMode == .capture ? "Current boxes on the frozen frame." : "Current detector health and active tracks.")
+
+                if previewMode == .capture {
+                    if workbench.annotations.isEmpty {
+                        Text("No boxes drawn on the snapshot.")
+                            .font(.system(size: 13, weight: .medium, design: .rounded))
+                            .foregroundStyle(Color.white.opacity(0.58))
+                    } else {
+                        ForEach(workbench.annotations) { annotation in
+                            HStack {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(annotation.label)
+                                        .font(.system(size: 13, weight: .bold, design: .rounded))
+                                        .foregroundStyle(.white)
+                                    Text("x \(String(format: "%.2f", annotation.boundingBox.x)) · y \(String(format: "%.2f", annotation.boundingBox.y)) · w \(String(format: "%.2f", annotation.boundingBox.width)) · h \(String(format: "%.2f", annotation.boundingBox.height))")
+                                        .font(.system(size: 12, weight: .medium, design: .monospaced))
+                                        .foregroundStyle(Color.white.opacity(0.62))
+                                }
+                                Spacer()
+                                Button(role: .destructive) {
+                                    workbench.deleteAnnotation(id: annotation.id)
+                                } label: {
+                                    Image(systemName: "trash")
+                                }
+                                .buttonStyle(.plain)
+                                .foregroundStyle(Color(red: 0.95, green: 0.42, blue: 0.42))
+                            }
+                        }
+                    }
+                } else if let health = workbench.detectorHealth {
+                    Text("\(health.model.backend.uppercased()) · \(health.model.weights)")
+                        .font(.system(size: 13, weight: .bold, design: .monospaced))
+                        .foregroundStyle(.white)
+                    Text("\(health.tracks.count) active tracks · \(String(format: "%.1f", health.processingFPS)) fps")
+                        .font(.system(size: 13, weight: .medium, design: .rounded))
+                        .foregroundStyle(Color.white.opacity(0.68))
+
+                    ForEach(Array(health.tracks.prefix(5))) { track in
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("#\(track.trackID) \(track.className) \(String(format: "%.2f", track.confidence))")
+                                .font(.system(size: 12, weight: .bold, design: .monospaced))
+                                .foregroundStyle(.white)
+                            Text("center \(track.center.map { String(format: "%.0f", $0) }.joined(separator: ", "))")
+                                .font(.system(size: 12, weight: .medium, design: .monospaced))
+                                .foregroundStyle(Color.white.opacity(0.58))
+                        }
+                    }
+                } else {
+                    Text("Detector health is not available yet.")
+                        .font(.system(size: 13, weight: .medium, design: .rounded))
+                        .foregroundStyle(Color.white.opacity(0.58))
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(16)
+            .background(cardFill)
+        }
     }
 
     private var previewPlaceholder: some View {
@@ -396,6 +918,46 @@ struct ContentView: View {
         return trimmed
     }
 
+    private var activePreviewStreamURL: String {
+        switch previewMode {
+        case .raw, .capture:
+            return sanitizedStreamURL
+        case .annotated:
+            return workbench.annotatedStreamURL
+        }
+    }
+
+    private var activePreviewSnapshotURL: String {
+        switch previewMode {
+        case .raw, .capture:
+            return resolvedSnapshotURL
+        case .annotated:
+            return workbench.annotatedSnapshotURL
+        }
+    }
+
+    private var previewTitle: String {
+        switch previewMode {
+        case .raw:
+            return "Live Pi Preview"
+        case .annotated:
+            return "Detection And Tracking"
+        case .capture:
+            return "Training Capture"
+        }
+    }
+
+    private var previewSubtitle: String {
+        switch previewMode {
+        case .raw:
+            return "Raw MJPEG when possible, cached snapshots when not. Current target: \(currentSettings.resolutionLabel)"
+        case .annotated:
+            return "Annotated MJPEG from the local vision service. Use this to verify tracks, events, and model behavior in real time."
+        case .capture:
+            return "Draw product boxes on the frozen frame. Saving writes YOLO labels and updates the dataset manifest automatically."
+        }
+    }
+
     private var statusHeadline: String {
         switch feedTone {
         case .idle:
@@ -418,6 +980,19 @@ struct ContentView: View {
         case .continuous:
             return "Continuous"
         }
+    }
+
+    private var detectorLogExcerpt: String {
+        excerpt(from: workbench.detectorLog)
+    }
+
+    private var trainingLogExcerpt: String {
+        excerpt(from: workbench.trainingLog)
+    }
+
+    private func excerpt(from log: String) -> String {
+        let lines = log.components(separatedBy: .newlines).filter { !$0.isEmpty }
+        return lines.suffix(14).joined(separator: "\n")
     }
 
     private func cardHeader(title: String, subtitle: String) -> some View {
@@ -453,7 +1028,20 @@ struct ContentView: View {
                 .font(.system(size: 12, weight: .medium, design: .monospaced))
                 .foregroundStyle(Color.white.opacity(0.82))
                 .textSelection(.enabled)
-                .lineLimit(3)
+                .lineLimit(6)
+        }
+    }
+
+    private func compactField(label: String, value: Binding<String>) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            fieldLabel(label)
+            TextField(label, text: value)
+                .textFieldStyle(.plain)
+                .font(.system(size: 13, weight: .medium, design: .monospaced))
+                .foregroundStyle(.white)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 12)
+                .background(fieldFill)
         }
     }
 
@@ -512,10 +1100,47 @@ struct ContentView: View {
         )
     }
 
+    private func metricPill(label: String, value: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(label)
+                .font(.system(size: 11, weight: .bold, design: .rounded))
+                .foregroundStyle(Color.white.opacity(0.46))
+                .textCase(.uppercase)
+            Text(value)
+                .font(.system(size: 14, weight: .bold, design: .monospaced))
+                .foregroundStyle(.white)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(
+            Capsule(style: .continuous)
+                .fill(Color.white.opacity(0.07))
+        )
+    }
+
+    private func logPreview(title: String, body: String) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            fieldLabel(title)
+            Text(body.isEmpty ? "No output yet." : body)
+                .font(.system(size: 11, weight: .medium, design: .monospaced))
+                .foregroundStyle(Color.white.opacity(0.74))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(12)
+                .background(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(Color.black.opacity(0.22))
+                )
+                .textSelection(.enabled)
+        }
+    }
+
     private func connectOrReload() {
         hasConnected = true
+        if previewMode == .capture {
+            previewMode = .raw
+        }
         feedTone = .idle
-        statusText = "Opening \(sanitizedStreamURL)"
+        statusText = "Opening \(activePreviewStreamURL)"
         lastUpdated = .now
         reloadToken = UUID()
 
@@ -624,6 +1249,13 @@ struct ContentView: View {
                     isSavingSnapshot = false
                 }
             }
+        }
+    }
+
+    private func captureFrameForTraining() {
+        previewMode = .capture
+        Task {
+            await workbench.captureSnapshot(from: resolvedSnapshotURL)
         }
     }
 
