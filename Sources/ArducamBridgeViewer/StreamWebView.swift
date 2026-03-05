@@ -196,6 +196,7 @@ struct StreamWebView: NSViewRepresentable {
                 const badge = document.getElementById("badge");
                 const placeholder = document.getElementById("placeholder");
                 let fallbackInterval = null;
+                let liveRetryTimeout = null;
                 let firstFrameWatchdog = null;
                 let mode = "boot";
 
@@ -224,8 +225,32 @@ struct StreamWebView: NSViewRepresentable {
                   }
                 }
 
+                function clearWatchdog() {
+                  if (firstFrameWatchdog !== null) {
+                    window.clearTimeout(firstFrameWatchdog);
+                    firstFrameWatchdog = null;
+                  }
+                }
+
+                function clearLiveRetry() {
+                  if (liveRetryTimeout !== null) {
+                    window.clearTimeout(liveRetryTimeout);
+                    liveRetryTimeout = null;
+                  }
+                }
+
+                function scheduleLiveRetry() {
+                  clearLiveRetry();
+                  liveRetryTimeout = window.setTimeout(() => {
+                    if (mode === "fallback") {
+                      start(true);
+                    }
+                  }, 5000);
+                }
+
                 function beginFallback(reason) {
                   clearFallback();
+                  clearWatchdog();
 
                   if (!snapshotUrl) {
                     updateBadge("Feed error");
@@ -243,6 +268,7 @@ struct StreamWebView: NSViewRepresentable {
 
                   refreshSnapshot();
                   fallbackInterval = window.setInterval(refreshSnapshot, 2500);
+                  scheduleLiveRetry();
                 }
 
                 image.onload = () => {
@@ -252,29 +278,29 @@ struct StreamWebView: NSViewRepresentable {
                     updateBadge("Snapshot fallback");
                     post("fallback", "Snapshot fallback is active.");
                   } else {
+                    clearLiveRetry();
                     updateBadge("Live MJPEG");
                     post("live", "Live MJPEG stream connected.");
                   }
-
-                  if (firstFrameWatchdog !== null) {
-                    window.clearTimeout(firstFrameWatchdog);
-                    firstFrameWatchdog = null;
-                  }
+                  clearWatchdog();
                 };
 
                 image.onerror = () => {
                   if (mode === "fallback") {
                     post("error", "Snapshot refresh failed. Check the Pi stream server.");
+                    scheduleLiveRetry();
                   } else {
                     beginFallback("MJPEG stream unavailable. Falling back to snapshots.");
                   }
                 };
 
-                function start() {
+                function start(isRetry = false) {
+                  clearLiveRetry();
                   clearFallback();
+                  clearWatchdog();
                   mode = "live";
-                  updateBadge("Connecting");
-                  post("status", `Opening ${streamUrl}`);
+                  updateBadge(isRetry ? "Retrying live" : "Connecting");
+                  post("status", isRetry ? `Retrying ${streamUrl}` : `Opening ${streamUrl}`);
                   image.src = cacheBust(streamUrl);
 
                   firstFrameWatchdog = window.setTimeout(() => {

@@ -1,0 +1,5 @@
+path: '/Users/core/Documents/GitHub/ArducamBridge/datasets/vending'
+train: images/train
+val: images/val
+names:
+  0: 'coke'

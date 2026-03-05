@@ -64,7 +64,7 @@ struct ContentView: View {
     @State private var feedTone: FeedTone = .idle
     @State private var lastUpdated = Date.now
     @State private var currentSettings = BridgeSettings.placeholder
-    @State private var selectedPreset: StreamPreset = .balanced
+    @State private var selectedPreset: StreamPreset? = .balanced
     @State private var focusMode: FocusMode = .auto
     @State private var manualLensPosition = 0.0
     @State private var previewMode: PreviewMode = .raw
@@ -315,7 +315,7 @@ struct ContentView: View {
                 .disabled(isApplyingStream)
             }
 
-            Text("Active on Pi: \(currentSettings.resolutionLabel) at \(formattedFramerate(currentSettings.framerate)) fps, quality \(currentSettings.quality)")
+            Text("Active on Pi: \(currentSettings.resolutionLabel) at \(formattedFramerate(currentSettings.framerate)) fps, quality \(currentSettings.quality) · \(selectedPreset?.title ?? "Custom")")
                 .font(.system(size: 12, weight: .medium, design: .rounded))
                 .foregroundStyle(Color.white.opacity(0.64))
         }
@@ -1150,8 +1150,6 @@ struct ContentView: View {
     }
 
     private func applyPreset(_ preset: StreamPreset) {
-        selectedPreset = preset
-
         Task {
             await MainActor.run {
                 isApplyingStream = true
