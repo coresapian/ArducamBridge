@@ -1,0 +1,580 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		270E0914DFCD75E85F2723E7 /* ProfileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1AFC4C1D935FB2F3D96741A /* ProfileStore.swift */; };
+		27262E8ACEB116334CF67FC0 /* BridgeAPITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87111434AB5C14F41FF43570 /* BridgeAPITests.swift */; };
+		43BA786D832E2CE4499B1CB2 /* BridgeDashboardModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BEEB28F4CC627746C3E05BE /* BridgeDashboardModel.swift */; };
+		68ADAF0444DE17F021AA8947 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 400DB46BCC2EAA8F100A6A08 /* RootView.swift */; };
+		6E2F284B499F8FEB6C2A62B6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 36712F2FB3E6D2B0417DA6B7 /* Assets.xcassets */; };
+		6E56F32B9E4AF5C9FED5D494 /* SnapshotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E608A8C69A36A59D941EF6 /* SnapshotStore.swift */; };
+		70237248C4235DDF8FA6FF7A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8949CADCE5F95EE6B33E6A6E /* Foundation.framework */; };
+		A0772788964D4B2C2DDF126A /* ProfileEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC6BF22D7F7BC4D3D85C26D /* ProfileEditorView.swift */; };
+		A4DB0BBC8897AB8724144E0A /* BridgeModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CFECB95C0A51C9CE52D76A7 /* BridgeModels.swift */; };
+		AB7DC206CA3F520578C2433F /* Design.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49843C3A18324F5C0590B97B /* Design.swift */; };
+		B5E7AB69BDF8102FDF320862 /* ProfileStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9764C7402AE5CED683C7D50 /* ProfileStoreTests.swift */; };
+		B91E9C782CE5230C6FFD8B40 /* SnapshotDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 878548385CF556B66ED32A6F /* SnapshotDetailView.swift */; };
+		B9CE275C8403DD5352B4A37B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = FCA7B08DC5B644447B4B5E0E /* PrivacyInfo.xcprivacy */; };
+		C6CD673F151F55D67DCFDC0F /* ArducamBridgeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9A18C17E996E9FD7964377F /* ArducamBridgeApp.swift */; };
+		CCE3A30A442FFC38D989F246 /* BridgeAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7369E29582900F55F5C2FC /* BridgeAPI.swift */; };
+		D0A0D3E6E2AB9AADF673E7CD /* MJPEGStreamClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10C221BB68B126096D337A16 /* MJPEGStreamClient.swift */; };
+		D8CEAE0F1820BD1C29C7CB0F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8949CADCE5F95EE6B33E6A6E /* Foundation.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		B96DC46392A68E830AB71939 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1E8185AEE7E5FCCF142598A0 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E806860E5852E9BF26416638;
+			remoteInfo = ArducamBridge;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		0CC6BF22D7F7BC4D3D85C26D /* ProfileEditorView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProfileEditorView.swift; sourceTree = "<group>"; };
+		10C221BB68B126096D337A16 /* MJPEGStreamClient.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MJPEGStreamClient.swift; sourceTree = "<group>"; };
+		1107F08542A0DC57B6D6FFEC /* ArducamBridgeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ArducamBridgeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2CFECB95C0A51C9CE52D76A7 /* BridgeModels.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BridgeModels.swift; sourceTree = "<group>"; };
+		36712F2FB3E6D2B0417DA6B7 /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		400DB46BCC2EAA8F100A6A08 /* RootView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		468C9C19BB36508D4C9FA528 /* ArducamBridge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ArducamBridge.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		49843C3A18324F5C0590B97B /* Design.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Design.swift; sourceTree = "<group>"; };
+		5BEEB28F4CC627746C3E05BE /* BridgeDashboardModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BridgeDashboardModel.swift; sourceTree = "<group>"; };
+		75E608A8C69A36A59D941EF6 /* SnapshotStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SnapshotStore.swift; sourceTree = "<group>"; };
+		87111434AB5C14F41FF43570 /* BridgeAPITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BridgeAPITests.swift; sourceTree = "<group>"; };
+		878548385CF556B66ED32A6F /* SnapshotDetailView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SnapshotDetailView.swift; sourceTree = "<group>"; };
+		8949CADCE5F95EE6B33E6A6E /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		D1AFC4C1D935FB2F3D96741A /* ProfileStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProfileStore.swift; sourceTree = "<group>"; };
+		E9764C7402AE5CED683C7D50 /* ProfileStoreTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProfileStoreTests.swift; sourceTree = "<group>"; };
+		F9A18C17E996E9FD7964377F /* ArducamBridgeApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ArducamBridgeApp.swift; sourceTree = "<group>"; };
+		FCA7B08DC5B644447B4B5E0E /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		FF7369E29582900F55F5C2FC /* BridgeAPI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BridgeAPI.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		E98A0D01F161A33F1E8A9B33 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				70237248C4235DDF8FA6FF7A /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FD605EA15D0AAAEC9ABF16B8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D8CEAE0F1820BD1C29C7CB0F /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0203142CB085A22AE5F6C7AC /* App */ = {
+			isa = PBXGroup;
+			children = (
+				1BA08E7E4DF930AF0FC1211B /* ArducamBridge */,
+				D658291EB43D8894AA56E85A /* ArducamBridgeTests */,
+			);
+			name = App;
+			path = App;
+			sourceTree = "<group>";
+		};
+		1B367D0B89C84807F2F98222 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				8949CADCE5F95EE6B33E6A6E /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		1BA08E7E4DF930AF0FC1211B /* ArducamBridge */ = {
+			isa = PBXGroup;
+			children = (
+				82246CF9544AAE24B1E961C3 /* Models */,
+				237C0410B06E70BFCA0CE449 /* Services */,
+				265AE61B8C9E61B9B643E402 /* ViewModels */,
+				E0905D7535C0CC9130BCA242 /* Views */,
+				9A6279D2D4DCB574FD791FC1 /* Resources */,
+				F9A18C17E996E9FD7964377F /* ArducamBridgeApp.swift */,
+			);
+			name = ArducamBridge;
+			path = ArducamBridge;
+			sourceTree = "<group>";
+		};
+		237C0410B06E70BFCA0CE449 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				FF7369E29582900F55F5C2FC /* BridgeAPI.swift */,
+				10C221BB68B126096D337A16 /* MJPEGStreamClient.swift */,
+				D1AFC4C1D935FB2F3D96741A /* ProfileStore.swift */,
+				75E608A8C69A36A59D941EF6 /* SnapshotStore.swift */,
+			);
+			name = Services;
+			path = Services;
+			sourceTree = "<group>";
+		};
+		265AE61B8C9E61B9B643E402 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				5BEEB28F4CC627746C3E05BE /* BridgeDashboardModel.swift */,
+			);
+			name = ViewModels;
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		3439859150F044B96D11922A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				468C9C19BB36508D4C9FA528 /* ArducamBridge.app */,
+				1107F08542A0DC57B6D6FFEC /* ArducamBridgeTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		450CB98B85542D528A6AF4D7 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1B367D0B89C84807F2F98222 /* iOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		82246CF9544AAE24B1E961C3 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				2CFECB95C0A51C9CE52D76A7 /* BridgeModels.swift */,
+			);
+			name = Models;
+			path = Models;
+			sourceTree = "<group>";
+		};
+		96B052908FBA82345CD76AD5 = {
+			isa = PBXGroup;
+			children = (
+				3439859150F044B96D11922A /* Products */,
+				450CB98B85542D528A6AF4D7 /* Frameworks */,
+				0203142CB085A22AE5F6C7AC /* App */,
+			);
+			sourceTree = "<group>";
+		};
+		9A6279D2D4DCB574FD791FC1 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				36712F2FB3E6D2B0417DA6B7 /* Assets.xcassets */,
+				FCA7B08DC5B644447B4B5E0E /* PrivacyInfo.xcprivacy */,
+			);
+			name = Resources;
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		D658291EB43D8894AA56E85A /* ArducamBridgeTests */ = {
+			isa = PBXGroup;
+			children = (
+				87111434AB5C14F41FF43570 /* BridgeAPITests.swift */,
+				E9764C7402AE5CED683C7D50 /* ProfileStoreTests.swift */,
+			);
+			name = ArducamBridgeTests;
+			path = ArducamBridgeTests;
+			sourceTree = "<group>";
+		};
+		E0905D7535C0CC9130BCA242 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				49843C3A18324F5C0590B97B /* Design.swift */,
+				0CC6BF22D7F7BC4D3D85C26D /* ProfileEditorView.swift */,
+				400DB46BCC2EAA8F100A6A08 /* RootView.swift */,
+				878548385CF556B66ED32A6F /* SnapshotDetailView.swift */,
+			);
+			name = Views;
+			path = Views;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E5DE6E636E04E77A380C65B3 /* ArducamBridgeTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 34685F4436934EEAA02D861A /* Build configuration list for PBXNativeTarget "ArducamBridgeTests" */;
+			buildPhases = (
+				A817EE56EA181F8C1128099D /* Sources */,
+				FD605EA15D0AAAEC9ABF16B8 /* Frameworks */,
+				CECFBE687E8BC8D0683D881B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F9F7DEA64A5DE2ED8B388915 /* PBXTargetDependency */,
+			);
+			name = ArducamBridgeTests;
+			productName = ArducamBridgeTests;
+			productReference = 1107F08542A0DC57B6D6FFEC /* ArducamBridgeTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		E806860E5852E9BF26416638 /* ArducamBridge */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 506907EA147693124A923F8E /* Build configuration list for PBXNativeTarget "ArducamBridge" */;
+			buildPhases = (
+				F72960DEC2BA8C8EEA6C6B01 /* Sources */,
+				E98A0D01F161A33F1E8A9B33 /* Frameworks */,
+				9884A78415284A7DF44FE1F9 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ArducamBridge;
+			productName = ArducamBridge;
+			productReference = 468C9C19BB36508D4C9FA528 /* ArducamBridge.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		1E8185AEE7E5FCCF142598A0 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 2600;
+				LastUpgradeCheck = 2600;
+				TargetAttributes = {
+					E5DE6E636E04E77A380C65B3 = {
+						TestTargetID = E806860E5852E9BF26416638;
+					};
+				};
+			};
+			buildConfigurationList = F3908C0A2E65A67C4DF58AAA /* Build configuration list for PBXProject "ArducamBridge" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 96B052908FBA82345CD76AD5;
+			minimizedProjectReferenceProxies = 0;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 3439859150F044B96D11922A /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E806860E5852E9BF26416638 /* ArducamBridge */,
+				E5DE6E636E04E77A380C65B3 /* ArducamBridgeTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		9884A78415284A7DF44FE1F9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6E2F284B499F8FEB6C2A62B6 /* Assets.xcassets in Resources */,
+				B9CE275C8403DD5352B4A37B /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CECFBE687E8BC8D0683D881B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A817EE56EA181F8C1128099D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				27262E8ACEB116334CF67FC0 /* BridgeAPITests.swift in Sources */,
+				B5E7AB69BDF8102FDF320862 /* ProfileStoreTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F72960DEC2BA8C8EEA6C6B01 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C6CD673F151F55D67DCFDC0F /* ArducamBridgeApp.swift in Sources */,
+				A4DB0BBC8897AB8724144E0A /* BridgeModels.swift in Sources */,
+				CCE3A30A442FFC38D989F246 /* BridgeAPI.swift in Sources */,
+				D0A0D3E6E2AB9AADF673E7CD /* MJPEGStreamClient.swift in Sources */,
+				270E0914DFCD75E85F2723E7 /* ProfileStore.swift in Sources */,
+				6E56F32B9E4AF5C9FED5D494 /* SnapshotStore.swift in Sources */,
+				43BA786D832E2CE4499B1CB2 /* BridgeDashboardModel.swift in Sources */,
+				AB7DC206CA3F520578C2433F /* Design.swift in Sources */,
+				A0772788964D4B2C2DDF126A /* ProfileEditorView.swift in Sources */,
+				68ADAF0444DE17F021AA8947 /* RootView.swift in Sources */,
+				B91E9C782CE5230C6FFD8B40 /* SnapshotDetailView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		F9F7DEA64A5DE2ED8B388915 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = ArducamBridge;
+			target = E806860E5852E9BF26416638 /* ArducamBridge */;
+			targetProxy = B96DC46392A68E830AB71939 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		55A8A6EA9F91FEF7DB83E580 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+					BUNDLE_LOADER = "$(TEST_HOST)";
+					CLANG_ENABLE_OBJC_WEAK = NO;
+					CODE_SIGN_STYLE = Automatic;
+					DEVELOPMENT_TEAM = F567VF9J9R;
+					GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.mldelaurier.arducambridgeTests;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ArducamBridge.app/ArducamBridge";
+				TEST_TARGET_NAME = ArducamBridge;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		688D0385FD69431EDEE71D18 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		8A514E75C0A3A9B9BFBDA176 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+					BUNDLE_LOADER = "$(TEST_HOST)";
+					CLANG_ENABLE_OBJC_WEAK = NO;
+					CODE_SIGN_STYLE = Automatic;
+					DEVELOPMENT_TEAM = F567VF9J9R;
+					GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.mldelaurier.arducambridgeTests;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ArducamBridge.app/ArducamBridge";
+				TEST_TARGET_NAME = ArducamBridge;
+			};
+			name = Debug;
+		};
+		AA75C0E3E6F817C71F688E24 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+					CLANG_ENABLE_OBJC_WEAK = NO;
+					CURRENT_PROJECT_VERSION = 1;
+					DEVELOPMENT_TEAM = F567VF9J9R;
+					GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = App/ArducamBridge/Resources/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 1.0;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mldelaurier.arducambridge;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CC213A11E86AD095F359917D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+					CLANG_ENABLE_OBJC_WEAK = NO;
+					CURRENT_PROJECT_VERSION = 1;
+					DEVELOPMENT_TEAM = F567VF9J9R;
+					GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = App/ArducamBridge/Resources/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mldelaurier.arducambridge;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		D67B9B50F9B1E55F0BF80AE3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		34685F4436934EEAA02D861A /* Build configuration list for PBXNativeTarget "ArducamBridgeTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				55A8A6EA9F91FEF7DB83E580 /* Release */,
+				8A514E75C0A3A9B9BFBDA176 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		506907EA147693124A923F8E /* Build configuration list for PBXNativeTarget "ArducamBridge" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC213A11E86AD095F359917D /* Release */,
+				AA75C0E3E6F817C71F688E24 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F3908C0A2E65A67C4DF58AAA /* Build configuration list for PBXProject "ArducamBridge" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				688D0385FD69431EDEE71D18 /* Debug */,
+				D67B9B50F9B1E55F0BF80AE3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 1E8185AEE7E5FCCF142598A0 /* Project object */;
+}
